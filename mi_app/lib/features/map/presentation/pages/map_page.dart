@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geolocator/geolocator.dart'; // ✅ Importa geolocator
-
-// Modelo simple de refugio
-class Shelter {
-  final String name;
-  final double latitude;
-  final double longitude;
-  final String address;
-  const Shelter({
-    required this.name,
-    required this.latitude,
-    required this.longitude,
-    required this.address,
-  });
-}
+import 'package:geolocator/geolocator.dart';
+import '../../../../injection_container.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -27,66 +15,51 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   LatLng? _userLocation;
   bool _loading = true;
-  final List<Shelter> _shelters = [
-    Shelter(
-      name: 'Refugio Patitas Felices',
-      latitude: -0.1807,
-      longitude: -78.4678,
-      address: 'Av. 6 de Diciembre N34-123, Quito',
-    ),
-    Shelter(
-      name: 'Hogar Canino Esperanza',
-      latitude: -0.2000,
-      longitude: -78.5000,
-      address: 'Calle Olmedo Oe1-45, Quito',
-    ),
-  ];
+  List<Map<String, dynamic>> _shelters = []; // Datos desde Supabase
 
   @override
   void initState() {
     super.initState();
-    _determinePosition();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await _determinePosition();
+    await _loadSheltersFromSupabase();
   }
 
   Future<void> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor activa los servicios de ubicación')),
-      );
-      _loading = false;
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    if (permission == LocationPermission.deniedForever ||
-    permission == LocationPermission.denied) {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permiso de ubicación denegado')),
-      );
-      _loading = false;
-      return;
-    }
-
     try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) return;
+
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       setState(() {
         _userLocation = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      // Silenciosamente manejar error de ubicación
+    }
+  }
+
+  Future<void> _loadSheltersFromSupabase() async {
+    try {
+      final response = await getIt<SupabaseClient>().from('shelters').select();
+      setState(() {
+        _shelters = response as List<Map<String, dynamic>>;
         _loading = false;
       });
     } catch (e) {
-      _loading = false;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al obtener ubicación: $e')),
+        SnackBar(content: Text('Error al cargar refugios: $e')),
       );
+      _loading = false;
     }
   }
 
@@ -106,7 +79,7 @@ class _MapPageState extends State<MapPage> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // ✅ Elimina espacios extra
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.login_pro',
                 ),
                 // Marcador del usuario
@@ -128,17 +101,20 @@ class _MapPageState extends State<MapPage> {
                       ),
                     ],
                   ),
-                // Marcadores de refugios
+                // Marcadores de refugios desde Supabase
                 MarkerLayer(
                   markers: _shelters.map((shelter) {
                     return Marker(
                       width: 80,
                       height: 80,
-                      point: LatLng(shelter.latitude, shelter.longitude),
+                      point: LatLng(
+                        (shelter['latitude'] as num).toDouble(),
+                        (shelter['longitude'] as num).toDouble(),
+                      ),
                       child: GestureDetector(
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(shelter.name)),
+                            SnackBar(content: Text(shelter['shelter_name'])),
                           );
                         },
                         child: Container(
