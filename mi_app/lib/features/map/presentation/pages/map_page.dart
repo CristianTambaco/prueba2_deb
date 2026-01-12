@@ -23,6 +23,101 @@ class _MapPageState extends State<MapPage> {
     _loadData();
   }
 
+
+
+  void _showShelterDetails(Map<String, dynamic> shelter) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Título
+              Row(
+                children: [
+                  const Icon(Icons.home, color: Color(0xFF6C5CE7), size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      shelter['shelter_name'] as String,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2D3436),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(height: 24, thickness: 1),
+
+              // Dirección
+              if (shelter['address'] != null)
+                _buildDetailRow('📍 Dirección', shelter['address'] as String),
+
+              // Ciudad y País
+              _buildDetailRow('🌍 Ubicación', '${shelter['city']}, ${shelter['country']}'),
+
+              // Teléfono
+              if (shelter['phone'] != null)
+                _buildDetailRow('📞 Teléfono', shelter['phone'] as String),
+
+              // Sitio web
+              if (shelter['website'] != null)
+                _buildDetailRow('🌐 Sitio Web', shelter['website'] as String),
+
+              
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$title: ',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2D3436),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: Color(0xFF636E72)),
+              softWrap: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+
+
+
   Future<void> _loadData() async {
     await _determinePosition();
     await _loadSheltersFromSupabase();
@@ -105,29 +200,27 @@ class _MapPageState extends State<MapPage> {
                 MarkerLayer(
                   markers: _shelters.map((shelter) {
                     return Marker(
-                      width: 80,
-                      height: 80,
-                      point: LatLng(
-                        (shelter['latitude'] as num).toDouble(),
-                        (shelter['longitude'] as num).toDouble(),
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(shelter['shelter_name'])),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 2)],
-                          ),
-                          child: const Icon(Icons.home, color: Color(0xFF6C5CE7), size: 36),
+                    width: 80,
+                    height: 80,
+                    point: LatLng(
+                      (shelter['latitude'] as num).toDouble(),
+                      (shelter['longitude'] as num).toDouble(),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        _showShelterDetails(shelter);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 2)],
                         ),
+                        child: const Icon(Icons.home, color: Color(0xFF6C5CE7), size: 36),
                       ),
-                    );
+                    ),
+                  );
                   }).toList(),
                 ),
               ],
