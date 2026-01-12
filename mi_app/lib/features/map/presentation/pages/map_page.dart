@@ -68,7 +68,7 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Refugios Cercanos'),
-        backgroundColor: const Color(0xFF6C5CE7),
+        backgroundColor: const Color(0xFFFF8C42),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
