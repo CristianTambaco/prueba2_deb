@@ -12,21 +12,21 @@
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
-import 'package:login_pro/core/network/network_info.dart' as _i505;
-import 'package:login_pro/features/auth/data/datasources/auth_remote_data_source.dart'
+import 'package:pet_app/core/network/network_info.dart' as _i505;
+import 'package:pet_app/features/auth/data/datasources/auth_remote_data_source.dart'
     as _i383;
-import 'package:login_pro/features/auth/data/repositories/auth_repository_impl.dart'
+import 'package:pet_app/features/auth/data/repositories/auth_repository_impl.dart'
     as _i12;
-import 'package:login_pro/features/auth/domain/repositories/auth_repository.dart'
+import 'package:pet_app/features/auth/domain/repositories/auth_repository.dart'
     as _i638;
-import 'package:login_pro/features/auth/domain/usecases/get_current_user.dart'
+import 'package:pet_app/features/auth/domain/usecases/get_current_user.dart'
     as _i496;
-import 'package:login_pro/features/auth/domain/usecases/reset_password.dart'
+import 'package:pet_app/features/auth/domain/usecases/reset_password.dart'
     as _i1002;
-import 'package:login_pro/features/auth/domain/usecases/sign_in.dart' as _i1051;
-import 'package:login_pro/features/auth/domain/usecases/sign_out.dart' as _i427;
-import 'package:login_pro/features/auth/domain/usecases/sign_up.dart' as _i369;
-import 'package:login_pro/features/auth/presentation/bloc/auth_bloc.dart'
+import 'package:pet_app/features/auth/domain/usecases/sign_in.dart' as _i1051;
+import 'package:pet_app/features/auth/domain/usecases/sign_out.dart' as _i427;
+import 'package:pet_app/features/auth/domain/usecases/sign_up.dart' as _i369;
+import 'package:pet_app/features/auth/presentation/bloc/auth_bloc.dart'
     as _i746;
 import 'package:supabase/supabase.dart' as _i590;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;

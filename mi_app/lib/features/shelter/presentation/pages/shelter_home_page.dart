@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:login_pro/features/auth/presentation/pages/profile_page.dart';
+import 'package:pet_app/features/auth/presentation/pages/profile_page.dart';
 
 import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';

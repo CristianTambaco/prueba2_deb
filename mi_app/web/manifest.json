@@ -1,6 +1,6 @@
 {
-    "name": "login_pro",
-    "short_name": "login_pro",
+    "name": "pet_app",
+    "short_name": "pet_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
